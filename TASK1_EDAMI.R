@@ -1,5 +1,5 @@
 # Sebastian Smoliński
-# 269056
+
 # EDAMI Thursday 10:15
 # 20Z
 
