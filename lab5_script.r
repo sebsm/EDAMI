@@ -189,7 +189,7 @@ table(iris$Species[idx], iris2.hc.groups)
 # the “knee”, which corresponds to the optimal eps parameter.
 # A knee corresponds to a threshold where a sharp change occurs along the k-distance
 # curve.
-
+?dbscan::kNNdistplot
 dbscan::kNNdistplot(iris2, k=5)
 abline(h=0.5, lty="dashed")
 
@@ -236,12 +236,19 @@ res3 = table(ctg_all$CLASS,card.kmeans$cluster )
 res3
 accuracyCalc(res3,1)
 
+show(ctg_all)
+show(ctg_noClass)
+
+
 #wines
 download.file('http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv', 'wine_red.csv');
 download.file('http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv', 'wine_white.csv');
 wineRed_ds = read.table("wine_red.csv", header = TRUE, sep=";", na.strings= "*")
 wineRed_dsC <- wineRed_ds[,-12]
+str(wineRed_ds)
 
+
+show(wineRed_dsC)
 #example - wines
 card.kmeans = kmeans(wineRed_dsC,6)
 res3 = table(wineRed_ds$quality,card.kmeans$cluster )
