@@ -354,7 +354,7 @@ plot(1:12, ite, type = "b",
 # Actually, on our previous plots we can observe that in fact there are some dense groups of points, but there are also a lot of points
 # which are separated from each other with significant distances, but still are put in the same clusters. 
 # Based on this plot i can say that those 3 additional clusters are made of loose points
-# Rand index surprisingly is rushing for first 3 iterations to the value of 0.55 and then increases slitly to about 0.6. 
+# Rand index surprisingly is rushing for first 3 iterations to the value of 0.55 and then increases slithly to about 0.6. 
 # I assume level of similarity between partitions  for our dataset is from the range 0.55 - 0.6 and we can't get anything better
 # Iterations plot seems to find optimal location at 9 number of groups - somehow the iterations number here is a local mininmum
 # and for next iterations it increases significantly in comparision to the rest of plot
@@ -546,44 +546,181 @@ red_wine.hc_centroid <- hclust(distM, method="centroid")
 # Generating clusters
 ?cutree
 
-red_wine.hc.groups <- cutree(red_wine.hc, k=3)
-red_wine.hc.groups
+##### AVG #####
 
+red_wine.avg <- cutree(red_wine.hc, k=6)
+red_wine.avg
+
+plot(red_wine.hc, hang = -1, labels=red_wine$quality)
+rect.hclust(red_wine.hc, k=6, border=1:4)
 
 # Compare clusters with original class labels
-table(red_wine$quality[idx], red_wine.hc.groups)
+res_avg<-table(red_wine$quality, red_wine.avg)
 
+# Accuracy
+accuracyCalc(res_avg, 1)
+
+# Accuracy: 0.4796748
+
+# Rand index
+rand.index(red_wine$quality, red_wine.avg)
+
+# Rand index: 0.4312645
+
+# Silhouette width
+sill_avg<-silhouette(red_wine.avg, distM)
+summary(sill_avg)
+
+# Avg sil: 0.5540
+
+##### COMPLETE #####
+
+red_wine.com <- cutree(red_wine.hc_complete, k=6)
+red_wine.com
+
+plot(red_wine.hc_complete, hang = -1, labels=red_wine$quality)
+rect.hclust(red_wine.hc_complete, k=6, border=1:4)
+
+# Compare clusters with original class labels
+res_com<-table(red_wine$quality, red_wine.com)
+
+# Accuracy
+accuracyCalc(res_com, 1)
+
+# Accuracy: 0.4696685
+
+# Rand index
+rand.index(red_wine$quality, red_wine.com)
+
+# Rand index: 0.5277501
+
+# Silhouette width
+sill_avg<-silhouette(red_wine.com, distM)
+summary(sill_avg)
+
+# Avg sil: 0.4388
+
+
+##### SINGLE #####
+
+red_wine.sin <- cutree(red_wine.hc_single, k=6)
+red_wine.sin
+
+plot(red_wine.hc_single, hang = -1, labels=red_wine$quality)
+rect.hclust(red_wine.hc_single, k=6, border=1:4)
+
+# Compare clusters with original class labels
+res_sin<-table(red_wine$quality, red_wine.sin)
+
+# Accuracy
+accuracyCalc(res_sin, 1)
+
+# Accuracy: 0.4290181
+
+# Rand index
+rand.index(red_wine$quality, red_wine.sin)
+
+# Rand index: 0.3610407
+
+# Silhouette width
+sill_avg<-silhouette(red_wine.sin, distM)
+summary(sill_avg)
+
+# Avg sil: 0.4044
+
+##### CENTROID #####
+
+red_wine.cen <- cutree(red_wine.hc_centroid, k=6)
+red_wine.cen
+
+plot(red_wine.hc_centroid, hang = -1, labels=red_wine$quality)
+rect.hclust(red_wine.hc_centroid, k=6, border=1:4)
+
+# Compare clusters with original class labels
+res_cen<-table(red_wine$quality, red_wine.cen)
+
+# Accuracy
+accuracyCalc(res_cen, 1)
+
+# Accuracy: 0.4828018
+
+# Rand index
+rand.index(red_wine$quality, red_wine.cen)
+
+# Rand index: 0.4399018
+
+# Silhouette width
+sill_avg<-silhouette(red_wine.cen, distM)
+summary(sill_avg)
+
+# Avg sil: 0.5383
+
+# SUMMARY
+
+#             ACCURACY     RAND INDEX   SILHOUETTE
+
+# AVG         0.4796748    0.4312645    0.5540
+
+# COMPLETE    0.4696685    0.5277501    0.4388
+
+# SINGLE      0.4290181    0.3610407    0.4044
+
+# CENTROID    0.4828018    0.4399018    0.5383
+
+# We can see that the best accuracy we obtained with Centroid method, but the rand index was the best in Complete method.
+# On the other hand, silhouteet avg width was the best with Average method.
+# We can assume, based on results, that Single method gives generally the worst result with this dataset
 
 ####################################
 # DBSCAN                           #
 ####################################
-
-# MinPts parameter estimation
-# The idea is to calculate the average of the distances of every point to its k nearest
-# neighbors. The value of k will be specified by the user and corresponds to MinPts.
-# Next, these k-distances are plotted in an ascending order. The aim is to determine
-# the “knee”, which corresponds to the optimal eps parameter.
-# A knee corresponds to a threshold where a sharp change occurs along the k-distance
-# curve.
+?dbscan
 ?dbscan::kNNdistplot
-dbscan::kNNdistplot(iris2, k=5)
-abline(h=0.5, lty="dashed")
+?abline
+dbscan::kNNdistplot(red_wine_no_quality, k=6)
 
-# dbscan alg. execution
+abline(h=6, lty="solid")
 
-iris2.dbscan <- dbscan(iris2, eps=0.5, MinPts=5)
 
-#compare clusters with original class labels
-#cluster 0 means noise
-table(iris$Species, iris2.dbscan$cluster)
+# Dbscan alg. execution
 
-iris2.dbscan <- dbscan(iris2, eps=0.4, MinPts=5)
-table(iris$Species, iris2.dbscan$cluster)
+red_wine_no_quality.dbscan <- dbscan(red_wine_no_quality, eps=3, MinPts=13)
 
-# plot clusters
-plot(iris2.dbscan, iris2)
-plot(iris2.dbscan, iris2[c(1,4)])
+# Compare clusters with original class labels
+# Cluster 0 means noise
+res_dbscan<-table(red_wine$quality, red_wine_no_quality.dbscan$cluster)
+#     0   1   2   3   4   5   6
+# 3   2   7   0   1   0   0   0
+# 4  15  37   0   0   0   0   1
+# 5 337 316   9   6   6   5   2
+# 6 227 370   4  12   6   9  10
+# 7  61 130   0   3   1   4   0
+# 8   6  12   0   0   0   0   0
+# Plot clusters
+plot(red_wine_no_quality.dbscan, red_wine_no_quality[c(6,11)])
+
+# Accuracy
+accuracyCalc(res_dbscan,1)
+
+# Accuracy: 0.4709193
+
+rand.index(red_wine$quality, red_wine_no_quality.dbscan$cluster)
+# Rand index: 0.5125771
+
+# The best possible result i could get from using dbscan are 6 clusters, but it looks like too much elements has been attached to only two big clusters
+# and other clusters got only few elements
+# It's quite difficult to find good parameters for given dataset - there is a problem with clusters which are not dense adn their points are loose
 
 ####################################
 # CONCLUSIONS                      #
 ####################################
+
+
+# Main conclusions has been made under each experiment
+# Generally, number of iterations doesn't really improve the result of experiment
+# Single method of hierarchical clustering seems to be the worst for this dataset
+# Scaling data  before experiments improves results slithly
+# Higher number of clusters improves the accuracy, but rand index or silhouette avg witdh doesn't seem to increase really
+# DBSCAN gave one of the worst accuracy value due to problems with setting good parameters - in given dataset there are something like 4 dense clusters and 2 loose
+# The accuracy of certain methods depends highly on the possibility of method to distinguish dense clusters from loose ones and correctly append loose points to correct cluster
+# PAM method proved to be one of the best in terms of accuracy for 6 clusters - only Eclust for 9 clusters achieved better value
