@@ -417,7 +417,7 @@ table(red_wine_rpartS, red_wine_test_cat$cat)
 confusionMatrix(red_wine_rpartS, red_wine_test_cat$cat, mode="everything")
 
 #              Reference
-# Prediction   A   B   C
+# Prediction       A   B   C
 #              A  19  15   0
 #              B  46 380  18
 #              C   0   0   0
@@ -449,6 +449,34 @@ red_wine_rpartLM_Pruned<- prune(red_wine_rpartLM, cp = rpTree.cp)
 
 
 #red_wine_rpartLM_Pruned <- prune(red_wine_rpartLM, cp = rpTree$cptable[which.min(rpTree$cptable[,"xerror"]),"CP"])
+
+red_wine_rpart_pruned = predict(red_wine_rpartLM_Pruned,red_wine_test_cat,type = "class")
+table(red_wine_rpart_pruned, red_wine_test_cat$cat)
+confusionMatrix(red_wine_rpart_pruned, red_wine_test_cat$cat, mode="everything")
+
+#              Reference
+# Prediction   A   B   C
+#              A  11   9   0
+#              B  54 381  17
+#              C   0   5   1
+
+# Overall Statistics
+# 
+#               Accuracy : 0.8222          
+#                 95% CI : (0.7849, 0.8554)
+#    No Information Rate : 0.8264          
+#    P-Value [Acc > NIR] : 0.6231          
+# 
+#                  Kappa : 0.1629
+
+# Statistics by Class:
+#                      Class: A Class: B Class: C
+# Precision             0.55000   0.8429 0.166667
+# Recall                0.16923   0.9646 0.055556
+# F1                    0.25882   0.8996 0.083333
+
+
+
 
 rpart.plot(red_wine_rpartLM, main="Classification for red wine")
 rpart.plot(red_wine_rpartLM_Pruned, main="Classification for red wine - pruned")
@@ -548,8 +576,39 @@ for (nbTree in c(5,10,25, 50, 100, 250, 500))
 results_tree <- resamples(treesModels)
 summary(results_tree)
 
+red_wine_Forest_tunned = randomForest(cat~., data = red_wine_train_cat, importance = TRUE, nodesize = 10, mtry = 4, ntree = 100 )
+
+?importance
+round(importance(red_wine_Forest_tunned, type = 1),2)
+
+red_wine_Forest_tunned_testPred = predict (red_wine_Forest_tunned, newdata = red_wine_test_cat[,-12])
+confusionMatrix(red_wine_Forest_tunned_testPred, red_wine_test_cat$cat, mode = "everything")
+
+#              Reference
+# Prediction   A   B   C
+#          A  29  10   0
+#          B  36 383  18
+#          C   0   2   0
+
+# Overall Statistics
+# 
+#                   Accuracy : 0.8619          
+#                     95% CI : (0.8277, 0.8916)
+#        No Information Rate : 0.8264          
+#        P-Value [Acc > NIR] : 0.02088         
+# 
+#                      Kappa : 0.4081
+
+# Statistics by Class:
+#                      Class: A Class: B Class: C
+# Precision             0.74359   0.8764 0.000000
+# Recall                0.44615   0.9696 0.000000
+# F1                    0.55769   0.9207      NaN
+
+
+
 # Results
-Resampling results across tuning parameters:
+# Resampling results across tuning parameters:
   
 #   mtry  Accuracy   Kappa    
 # 1     0.8491970  0.2530727
@@ -643,9 +702,9 @@ table(red_wine_train_cat$cat,red_wine_test_naive_pred)
 # A  40  27   0
 # B  54 321  15
 # C   1  17   4
-
-cm <- confusionMatrix(red_wine_train_cat$cat, red_wine_test_naive_pred,mode="everything")
-cm
+length(is.na(red_wine_test_naive_pred))
+confusionMatrix(red_wine_train_cat$cat, red_wine_test_naive_pred,mode="everything")
+anyNA(red_wine_test_naive_pred)
 
 # A-priori probabilities:
 #   Y
@@ -678,18 +737,35 @@ cm
 
 ##### COMPARISION #####
 
-red_wine_rpart <- rpart(cat~., data=red_wine_train_cat)
-red_wine_rpart_testPred = predict(red_wine_rpart, red_wine_test_cat, type = "class")
+# red_wine_rpart <- rpart(cat~., data=red_wine_train_cat)
+# red_wine_rpart_testPred = predict(red_wine_rpart, red_wine_test_cat, type = "class")
 
-klasyfikator = c('C50', 'rpart',  'rForest', 'Naive Bayes')
-dokladnosc = c( mean(red_wine_c50_testPred == red_wine_test_cat$cat), 
-                mean(red_wine_rpart_testPred == red_wine_test_cat$cat),
-                mean(red_wine_Forest2_testPred == red_wine_test_cat$cat),
-                mean(red_wine_Naive_testPred == red_wine_test_cat$cat))
+klasyfikator = c('C50', 'rpart',  'rForest no tunning', 'Naive Bayes', 'rpart with loss matrix', 'rpart with changed parameters', 'rForest tunned', 'rForest full')
+dokladnosc = c( mean(c5_red_wine_testPredi == red_wine_test_cat$cat), 
+                mean(red_wine_rpart_testPredi == red_wine_test_cat$cat),
+                mean(red_wine_Forest_testPred == red_wine_test_cat$cat),
+                mean(red_wine_test_naive_pred == red_wine_test_cat$cat),
+                mean(red_wine_rpatLM_testPred == red_wine_test_cat$cat),
+                mean(red_wine_rpartS == red_wine_test_cat$cat),
+                mean(red_wine_Forest_tunned_testPred == red_wine_test_cat$cat),
+                mean(red_wine_Forest2_testPred == red_wine_test_cat$cat))
 
 res <- data.frame(klasyfikator, dokladnosc)
 View(res)
 
+red_wine_test_naive_pred
+red_wine_test_cat$cat
+red_wine_rpatLM_testPred
+red_wine_rpartS
+c5_red_wine_testPredi
 ##### CONCLUSIONS #####
 
+# 1 C50	0.8326360
+# 2	rpart	0.8451883
+# 3	rForest no tunning	0.8514644
+# 4	Naive Bayes	0.6663693
+# 5	rpart with loss matrix	0.7949791
+# 6	rpart with changed parameters	0.8347280
+# 7	rForest tunned	0.8640167
+# 8	rForest full	0.8514644
 
