@@ -702,10 +702,19 @@ table(red_wine_train_cat$cat,red_wine_test_naive_pred)
 # A  40  27   0
 # B  54 321  15
 # C   1  17   4
-length(is.na(red_wine_test_naive_pred))
+?confusionMatrix
 confusionMatrix(red_wine_train_cat$cat, red_wine_test_naive_pred,mode="everything")
-anyNA(red_wine_test_naive_pred)
-
+# anyNA(red_wine_test_naive_pred)
+# length(red_wine_test_naive_pred)
+# length(red_wine_test_cat$cat)
+length(red_wine_naivebayesClass)
+# mean(red_wine_test_naive_pred ==red_wine_test_cat$cat )
+# 
+# 
+# mean(red_wine_rpart_testPredi == red_wine_test_cat$cat)
+# length(red_wine_rpart_testPredi)
+# length(red_wine_test_cat$cat)
+# length(red_wine_train_cat$cat)
 # A-priori probabilities:
 #   Y
 # A          B          C 
@@ -744,7 +753,7 @@ klasyfikator = c('C50', 'rpart',  'rForest no tunning', 'Naive Bayes', 'rpart wi
 dokladnosc = c( mean(c5_red_wine_testPredi == red_wine_test_cat$cat), 
                 mean(red_wine_rpart_testPredi == red_wine_test_cat$cat),
                 mean(red_wine_Forest_testPred == red_wine_test_cat$cat),
-                mean(red_wine_test_naive_pred == red_wine_test_cat$cat),
+                mean(red_wine_test_naive_pred == red_wine_train_cat$cat),
                 mean(red_wine_rpatLM_testPred == red_wine_test_cat$cat),
                 mean(red_wine_rpartS == red_wine_test_cat$cat),
                 mean(red_wine_Forest_tunned_testPred == red_wine_test_cat$cat),
@@ -753,19 +762,21 @@ dokladnosc = c( mean(c5_red_wine_testPredi == red_wine_test_cat$cat),
 res <- data.frame(klasyfikator, dokladnosc)
 View(res)
 
-red_wine_test_naive_pred
-red_wine_test_cat$cat
-red_wine_rpatLM_testPred
-red_wine_rpartS
-c5_red_wine_testPredi
 ##### CONCLUSIONS #####
 
-# 1 C50	0.8326360
-# 2	rpart	0.8451883
-# 3	rForest no tunning	0.8514644
-# 4	Naive Bayes	0.6663693
-# 5	rpart with loss matrix	0.7949791
-# 6	rpart with changed parameters	0.8347280
-# 7	rForest tunned	0.8640167
-# 8	rForest full	0.8514644
 
+# 1	C50	                          0.8326360
+# 2	rpart	                        0.8451883
+# 3	rForest no tunning	          0.8514644
+# 4	Naive Bayes	                  0.7814451
+# 5	rpart with loss matrix	      0.7949791
+# 6	rpart with changed parameters	0.8347280
+# 7	rForest tunned	              0.8640167
+# 8	rForest full	                0.8535565
+
+# Based on results of our experiments, we can say that we obtained best accuracy with random Forest with tunned parameters, but the accuracy in other methods haven't differ a lot. 
+# The lowest obtained accuracy is connected with Naive Bayes Classificator and rpart with loss matrix. First can be explained by method and inaccuracy connected with it, becuase it's one of the simplest among models in Bayesian network.
+# Second rpart with loss matrix can be explained by possibly wrong value of wages in the matrix - they should have another value, because they are based on my simple analysis.
+
+# Precision table:
+  
